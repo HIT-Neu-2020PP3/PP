@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
         // 模拟终端设备，上传数据波形
         // 方法2 bindValue
-        query.prepare("INSERT INTO sample (value, time, dev_id) VALUES (:array, :time, :dev_id)");
+        query.prepare("INSERT INTO ecg (value, time, dev_id) VALUES (:array, :time, :dev_id)");
         // 与数据库中数据类型一致的十六进制数组
         short samples[3] = {2000,2001,2002};
         QByteArray waves2((char*)samples, sizeof(samples));
