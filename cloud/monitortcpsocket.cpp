@@ -1,21 +1,21 @@
-#include "mytcpsocket.h"
+#include "monitortcpsocket.h"
 
-MyTcpSocket::MyTcpSocket(bool openOK, QSqlDatabase &db, QTcpSocket *parent)
+MonitorTcpSocket::MonitorTcpSocket(bool openOK, QSqlDatabase &db, QTcpSocket *parent)
     : QTcpSocket(parent), openOK(openOK)
 {
     if (openOK)
         this->query = new QSqlQuery(db);
 
-    connect(this, &MyTcpSocket::readyRead, this, &MyTcpSocket::slotReadData);
-    connect(this, &MyTcpSocket::handled, this, &MyTcpSocket::responseReq);
+    connect(this, &MonitorTcpSocket::readyRead, this, &MonitorTcpSocket::slotReadData);
+    connect(this, &MonitorTcpSocket::handled, this, &MonitorTcpSocket::responseReq);
 }
 
-MyTcpSocket::~MyTcpSocket()
+MonitorTcpSocket::~MonitorTcpSocket()
 {
     delete this->query;
 }
 
-int MyTcpSocket::getDevID(const QByteArray &ba)
+int MonitorTcpSocket::getDevID(const QByteArray &ba)
 {
     char low = ba.at(0);
     char high = ba.at(1);
@@ -25,7 +25,7 @@ int MyTcpSocket::getDevID(const QByteArray &ba)
     return dev_id;
 }
 
-void MyTcpSocket::handleEcg(int dev_id, const QByteArray &ba)
+void MonitorTcpSocket::handleEcg(int dev_id, const QByteArray &ba)
 {
     if ( this->openOK ) {
         qDebug()<<"ECG receive size: "<<ba.size();
@@ -47,12 +47,12 @@ void MyTcpSocket::handleEcg(int dev_id, const QByteArray &ba)
         qDebug()<<"写 ECG 时数据库未开启";
 }
 
-void MyTcpSocket::handleIBP2(int dev_id, const QByteArray &ba)
+// 为什么这个信息无法写入啊
+void MonitorTcpSocket::handleIBP2(int dev_id, const QByteArray &ba)
 {
     if ( this->openOK ) {
         qDebug()<<"IBP2 receive size: "<<ba.size();
         this->query->prepare("INSERT INTO ibp2 (value, time, dev_id) VALUES (:array, :time, :dev_id)");
-        // 与数据库中数据类型一致的十六进制数组
 
         query->bindValue(":array", ba);
         // 绑定当前时间
@@ -64,15 +64,15 @@ void MyTcpSocket::handleIBP2(int dev_id, const QByteArray &ba)
             qDebug()<<"写入 IBP2 数据成功";
             this->updateDevState(dev_id);
         } else
-            qDebug()<<"写入 IBP2 数据失败: "<<this->query->lastError();
+            qDebug()<<"写入 IBP2 数据失败: "<<this->query->lastError()<<this->query->lastQuery();
     } else
         qDebug()<<"写 IBP2 时数据库未开启";
 }
 
-void MyTcpSocket::handleSPO2(int dev_id, const QByteArray &ba)
+void MonitorTcpSocket::handleSPO2(int dev_id, const QByteArray &ba)
 {
     if ( this->openOK ) {
-        qDebug()<<"IBP2 receive size: "<<ba.size();
+        qDebug()<<"SPO2 receive size: "<<ba.size();
         this->query->prepare("INSERT INTO spo2 (value, time, dev_id) VALUES (:array, :time, :dev_id)");
 
         query->bindValue(":array", ba);
@@ -92,7 +92,7 @@ void MyTcpSocket::handleSPO2(int dev_id, const QByteArray &ba)
 
 // 检查当前设备编号是否在设备表中存在
 // 假装已经打开数据库了
-bool MyTcpSocket::checkDevExist(int dev_id)
+bool MonitorTcpSocket::checkDevExist(int dev_id)
 {
     query->prepare("SELECT * from device "
                   "WHERE dev_id = :dev_id");
@@ -128,7 +128,7 @@ bool MyTcpSocket::checkDevExist(int dev_id)
 }
 
 // 更新设备在线状态
-void MyTcpSocket::updateDevState(int dev_id)
+void MonitorTcpSocket::updateDevState(int dev_id)
 {
     // 每15s更新一次refresh 字段 判定离线条件为refresh时间与当前时间差值超过20s
     this->query->prepare("UPDATE `medical_monitor1`.`device` SET refresh = NOW() WHERE dev_id = :dev_id");
@@ -138,12 +138,12 @@ void MyTcpSocket::updateDevState(int dev_id)
         qDebug()<<"更新设备在线状态错误";
 }
 
-void MyTcpSocket::slotReadData()
+void MonitorTcpSocket::slotReadData()
 {
     // 先只做请求数据库
     QByteArray ba = this->readAll();
 
-    if ( ba.size() > 1004 ) { // 做一个简单的判断
+    if ( ba.size() != 1003 && ba.size() != 251 && ba.size() != 128 ) { // 做一个简单的判断
         qDebug()<<"混乱";
         return;
     }
@@ -152,6 +152,7 @@ void MyTcpSocket::slotReadData()
     this->checkDevExist(dev_id);
 
     // 获取信息类型识别号码
+    // 重复的概率比较大
     char packHead = ba.at(2);
 
     if ( packHead == 0x08) {
@@ -169,7 +170,7 @@ void MyTcpSocket::slotReadData()
 }
 
 // 向请求端回写数据
-void MyTcpSocket::responseReq(const QByteArray &name)
+void MonitorTcpSocket::responseReq(const QByteArray &name)
 {
 
 //    this->write(name);

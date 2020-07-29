@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QWidget *mainWin = new QWidget();
-    MyTcpServer *newServer = new MyTcpServer(2, 1234);
+    MonitorServer *newServer = new MonitorServer(2, 1234);
     // 这边的 Client 只是用来测试的
 //    MyTcpClient *newClient = new MyTcpClient(1234);
 
