@@ -14,6 +14,7 @@ public:
     explicit MyTcpClient(quint16 port, QWidget *parent = nullptr);
     ~MyTcpClient();
 
+    qint16 port;
 // 变量都设定为 public 吧 这样就不用去纠结继承关系了
     QTcpSocket *mySocket;
     QTimer *reConnectTimer;

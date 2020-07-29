@@ -1,9 +1,9 @@
 #include "mytcpclient.h"
 
-MyTcpClient::MyTcpClient(quint16 port, QWidget *parent) : QWidget(parent)
+MyTcpClient::MyTcpClient(quint16 port, QWidget *parent) : QWidget(parent), port(port)
 {
     this->mySocket = new QTcpSocket(this);
-    this->mySocket->connectToHost(QHostAddress::LocalHost, port);
+    this->mySocket->connectToHost(QHostAddress::LocalHost, this->port);
 
     // 设定 Client 定时尝试连接 Server
     this->reConnectTimer = new QTimer(this);
@@ -38,7 +38,7 @@ void MyTcpClient::tcpReadyRead()
 void MyTcpClient::reConnect()
 {
     if (this->mySocket->state() == QAbstractSocket::UnconnectedState)
-        this->mySocket->connectToHost(QHostAddress::LocalHost, 1234);
+        this->mySocket->connectToHost(QHostAddress::LocalHost, this->port);
 }
 
 // 用来向主机发送数据

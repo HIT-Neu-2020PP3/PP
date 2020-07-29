@@ -113,6 +113,10 @@ void WorkingStationSocket::slotReadData()
     int patient_id;         // 待请求的设备号码
     if ( requestType == "QD" ) {
         patient_id = this->getPatientID(ba);
+        if ( patient_id == 0 ) {
+            emit handled(0x00, "bad");
+            return;
+        }
         dataTypeHead = ba.at(4);
         tableName = this->getTypeHead(dataTypeHead);
         if ( tableName.size() == 0 )
