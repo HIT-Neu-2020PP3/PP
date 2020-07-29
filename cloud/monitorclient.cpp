@@ -82,11 +82,11 @@ void MonitorClient::txDataPre(char pID, int data)
 {
 //    this->mySocket->write(QByteArray(data));
     if ( pID == 0x08 ) { // 心电波形
-        this->packageECG(data);
+        packageECG(data);
     } else if ( pID == 0x09 ) {
-        this->packageSPO2(data);
+        packageSPO2(data);
     } else if ( pID = 0x0a ) {
-        this->packageIBP2(data);
+        packageIBP2(data);
     } else
         qDebug()<<"设备端 TCP 数据发送错误";
     qDebug()<<"发送数据";
@@ -108,7 +108,7 @@ void MonitorClient::rightSend(const QByteArray ba)
 {
     if ( this->connectedStatus ) {
         this->mySocket->write(ba); // 写数据
-        this->mySocket->flush();   // 立即发送
+        this->mySocket->flush();
         qDebug()<<ba;
     } else
         qDebug()<<"TCP 未连接 发送数据失败";

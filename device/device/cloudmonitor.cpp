@@ -46,7 +46,8 @@ void CloudMonitor::initSignalConnection()
     // 如果每个串口接收到数据就通过 socket 发送数据 应该不是一个好的选择
     connect(this->ibp2Rx, &QWidgetSerialRx::rxDataSignal, this->mClient, &MonitorClient::txDataPre);
     connect(this->spo2Rx, &QWidgetSerialRx::rxDataSignal, this->mClient, &MonitorClient::txDataPre);
-    connect(this->spo2Rx, &QWidgetSerialRx::rxDataSignal, this->mClient, &MonitorClient::txDataPre);
+    // 复制有风险 粘贴需谨慎
+    connect(this->ecgRx, &QWidgetSerialRx::rxDataSignal, this->mClient, &MonitorClient::txDataPre);
 }
 
 
