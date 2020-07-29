@@ -19,9 +19,10 @@ class WorkingStationServer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WorkingStationServer(int maxCon, quint16 port, QWidget *parent = nullptr);
+    explicit WorkingStationServer(const QString &username, const QString &pwd,
+                                  int maxCon, quint16 port, QWidget *parent = nullptr);
 
-    bool initDB();
+    bool initDB(const QString &username, const QString &pwd);
 
 //private:
     QSqlDatabase db;

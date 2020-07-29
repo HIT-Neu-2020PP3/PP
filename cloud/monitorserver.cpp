@@ -1,9 +1,10 @@
 #include "monitorserver.h"
 
-MonitorServer::MonitorServer(int maxCon, quint16 port, QWidget *parent) : QWidget(parent)
+MonitorServer::MonitorServer(const QString &username, const QString &pwd, int maxCon, quint16 port, QWidget *parent)
+    : QWidget(parent)
 {
     // 初始化数据库
-    this->initDB();
+    this->initDB(username, pwd);
 
     this->mTcpServer = new QTcpServer(this);
     this->mTcpServer->setMaxPendingConnections(maxCon); // 最大连接数
@@ -12,7 +13,7 @@ MonitorServer::MonitorServer(int maxCon, quint16 port, QWidget *parent) : QWidge
     this->mTcpServer->listen(QHostAddress::Any, port);
 }
 
-bool MonitorServer::initDB()
+bool MonitorServer::initDB(const QString &username, const QString &pwd)
 {
     // 不用设定端口吗 暂时先不用端口看看先
     this->db = QSqlDatabase::addDatabase("QMYSQL");
@@ -21,10 +22,11 @@ bool MonitorServer::initDB()
     // 数据库名
     this->db.setDatabaseName("medical_monitor1");
     // 用户名及密码
-    this->db.setUserName("doctor3");
-    this->db.setPassword("1234567");
+    this->db.setUserName(username);
+    this->db.setPassword(pwd);
     this->openOK = db.open();
-    qDebug()<<"Monitor Server 连接数据库成功";
+    if ( this->openOK )
+        qDebug()<<"Monitor Server 连接数据库成功";
     return this->openOK;
 }
 

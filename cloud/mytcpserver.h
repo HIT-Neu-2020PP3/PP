@@ -18,9 +18,9 @@ class MyTcpServer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MyTcpServer(int maxCon, quint16 port, QWidget *parent = nullptr);
+    explicit MyTcpServer(const QString &username, const QString &pwd, int maxCon, quint16 port, QWidget *parent = nullptr);
 
-    bool initDB();
+    bool initDB(const QString &username, const QString &pwd);
 
 //private:
     QSqlDatabase db;

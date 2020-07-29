@@ -27,9 +27,10 @@ class MonitorServer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MonitorServer(int maxCon, quint16 port, QWidget *parent = nullptr);
+    explicit MonitorServer(const QString &username, const QString &pwd,
+                           int maxCon, quint16 port, QWidget *parent = nullptr);
 
-    bool initDB();
+    bool initDB(const QString &username, const QString &pwd);
 
 //private:
     QSqlDatabase db;

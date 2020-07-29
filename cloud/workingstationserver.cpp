@@ -1,9 +1,9 @@
 #include "workingstationserver.h"
 
-WorkingStationServer::WorkingStationServer(int maxCon, quint16 port, QWidget *parent) : QWidget(parent)
+WorkingStationServer::WorkingStationServer(const QString &username, const QString &pwd, int maxCon, quint16 port, QWidget *parent) : QWidget(parent)
 {
     // 初始化数据库
-    this->initDB();
+    this->initDB(username, pwd);
 
     this->mTcpServer = new QTcpServer(this);
     this->mTcpServer->setMaxPendingConnections(maxCon); // 最大连接数
@@ -12,7 +12,7 @@ WorkingStationServer::WorkingStationServer(int maxCon, quint16 port, QWidget *pa
     this->mTcpServer->listen(QHostAddress::Any, port);
 }
 
-bool WorkingStationServer::initDB()
+bool WorkingStationServer::initDB(const QString &username, const QString &pwd)
 {
     // 不用设定端口吗 暂时先不用端口看看先
     this->db = QSqlDatabase::addDatabase("QMYSQL");
@@ -21,8 +21,8 @@ bool WorkingStationServer::initDB()
     // 数据库名
     this->db.setDatabaseName("medical_monitor1");
     // 用户名及密码
-    this->db.setUserName("doctor3");
-    this->db.setPassword("1234567");
+    this->db.setUserName(username);
+    this->db.setPassword(pwd);
     this->openOK = db.open();
     if ( this->openOK )
         qDebug()<<"Woking Station Server 连接数据库成功";
