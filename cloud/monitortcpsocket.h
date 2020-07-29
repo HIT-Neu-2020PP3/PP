@@ -1,5 +1,5 @@
-#ifndef MYTCPSOCKET_H
-#define MYTCPSOCKET_H
+#ifndef MONITORTCPSOCKET_H
+#define MONITORTCPSOCKET_H
 
 #include <QObject>
 #include <QTcpSocket>
@@ -11,12 +11,12 @@
 #include <QSqlError>
 #include <QDateTime>
 
-class MyTcpSocket : public QTcpSocket
+class MonitorTcpSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit MyTcpSocket(bool isOK, QSqlDatabase &db, QTcpSocket *parent = nullptr);
-    ~MyTcpSocket();
+    explicit MonitorTcpSocket(bool isOK, QSqlDatabase &db, QTcpSocket *parent = nullptr);
+    ~MonitorTcpSocket();
 
 //private:
 //    QSqlQueryModel *model;
@@ -42,4 +42,4 @@ signals:
 
 };
 
-#endif // MYTCPSOCKET_H
+#endif // MONITORTCPSOCKET_H

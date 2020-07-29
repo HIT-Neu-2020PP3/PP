@@ -1,7 +1,6 @@
-#ifndef MONITORSERVER_H
-#define MONITORSERVER_H
+#ifndef WORKINGSTATIONSERVER_H
+#define WORKINGSTATIONSERVER_H
 
-#include <QObject>
 #include <QObject>
 #include <QWidget>
 #include <QTcpServer>
@@ -13,22 +12,15 @@
 #include <QSqlQueryModel>
 #include <QSqlError>
 #include <QDateTime>
-#include "monitortcpsocket.h"
 
-/*
- * 接收设备上传的波形信息的 Server
- *
- *
- *
- *
-*/
+#include "workingstationsocket.h"
 
-class MonitorServer : public QWidget
+class WorkingStationServer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MonitorServer(const QString &username, const QString &pwd,
-                           int maxCon, quint16 port, QWidget *parent = nullptr);
+    explicit WorkingStationServer(const QString &username, const QString &pwd,
+                                  int maxCon, quint16 port, QWidget *parent = nullptr);
 
     bool initDB(const QString &username, const QString &pwd);
 
@@ -47,5 +39,4 @@ signals:
 
 };
 
-
-#endif // MONITORSERVER_H
+#endif // WORKINGSTATIONSERVER_H

@@ -35,7 +35,7 @@ public:
 
     // 需要发送 dev_id 占两个字节
     // 发送数据表示 一个字节
-    short dev_id[1] = { 288 };   // 设备ID 默认为 1 吧
+    short dev_id[1] = { 1 };   // 设备ID 默认为 1 吧
 //    QByteArray dev_id_ba = QByteArray(dev_id);
 //    QByteArray()
     const int ecgBufferSize = 1003;
