@@ -38,9 +38,10 @@ void MyTcpSocket::handleEcg(int dev_id, const QByteArray &ba)
         // 绑定设备ID
         query->bindValue(":dev_id", dev_id);
         bool queryOK = query->exec();
-        if ( queryOK )
+        if ( queryOK ) {
             qDebug()<<"写入 ECG 数据成功";
-        else
+            this->updateDevState(dev_id);
+        } else
             qDebug()<<"写入 ECG 数据失败: "<<this->query->lastError();
     } else
         qDebug()<<"写 ECG 时数据库未开启";
@@ -59,9 +60,10 @@ void MyTcpSocket::handleIBP2(int dev_id, const QByteArray &ba)
         // 绑定设备ID
         query->bindValue(":dev_id", dev_id);
         bool queryOK = query->exec();
-        if ( queryOK )
+        if ( queryOK ) {
             qDebug()<<"写入 IBP2 数据成功";
-        else
+            this->updateDevState(dev_id);
+        } else
             qDebug()<<"写入 IBP2 数据失败: "<<this->query->lastError();
     } else
         qDebug()<<"写 IBP2 时数据库未开启";
@@ -79,9 +81,10 @@ void MyTcpSocket::handleSPO2(int dev_id, const QByteArray &ba)
         // 绑定设备ID
         query->bindValue(":dev_id", dev_id);
         bool queryOK = query->exec();
-        if ( queryOK )
+        if ( queryOK ) {
             qDebug()<<"写入 SPO2 数据成功";
-        else
+            this->updateDevState(dev_id);
+        } else
             qDebug()<<"写入 SPO2 数据失败: "<<this->query->lastError();
     } else
         qDebug()<<"写 SPO2 时数据库未开启";
@@ -122,6 +125,17 @@ bool MyTcpSocket::checkDevExist(int dev_id)
     {
         qDebug()<<"查看设备错误";
     }
+}
+
+// 更新设备在线状态
+void MyTcpSocket::updateDevState(int dev_id)
+{
+    // 每15s更新一次refresh 字段 判定离线条件为refresh时间与当前时间差值超过20s
+    this->query->prepare("UPDATE `medical_monitor1`.`device` SET refresh = NOW() WHERE dev_id = :dev_id");
+    this->query->query.bindValue(":dev_id", dev_id);
+    bool queryOk = query->exec();
+    if(!queryOk)
+        qDebug()<<"更新设备在线状态错误";
 }
 
 void MyTcpSocket::slotReadData()
