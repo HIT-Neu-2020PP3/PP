@@ -8,7 +8,10 @@ HEADERS += \
     monitortcpsocket.h \
     mytcpclient.h \
     mytcpserver.h \
-    mytcpsocket.h
+    mytcpsocket.h \
+    workingstationclient.h \
+    workingstationserver.h \
+    workingstationsocket.h
 
 SOURCES += \
     main.cpp \
@@ -17,4 +20,7 @@ SOURCES += \
     monitortcpsocket.cpp \
     mytcpclient.cpp \
     mytcpserver.cpp \
-    mytcpsocket.cpp
+    mytcpsocket.cpp \
+    workingstationclient.cpp \
+    workingstationserver.cpp \
+    workingstationsocket.cpp

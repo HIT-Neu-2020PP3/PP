@@ -1,18 +1,18 @@
-#include "monitorserver.h"
+#include "workingstationserver.h"
 
-MonitorServer::MonitorServer(int maxCon, quint16 port, QWidget *parent) : QWidget(parent)
+WorkingStationServer::WorkingStationServer(int maxCon, quint16 port, QWidget *parent) : QWidget(parent)
 {
     // 初始化数据库
     this->initDB();
 
     this->mTcpServer = new QTcpServer(this);
     this->mTcpServer->setMaxPendingConnections(maxCon); // 最大连接数
-    connect(this->mTcpServer, &QTcpServer::newConnection, this, &MonitorServer::tcpNewConnection);
+    connect(this->mTcpServer, &QTcpServer::newConnection, this, &WorkingStationServer::tcpNewConnection);
 
     this->mTcpServer->listen(QHostAddress::Any, port);
 }
 
-bool MonitorServer::initDB()
+bool WorkingStationServer::initDB()
 {
     // 不用设定端口吗 暂时先不用端口看看先
     this->db = QSqlDatabase::addDatabase("QMYSQL");
@@ -24,16 +24,17 @@ bool MonitorServer::initDB()
     this->db.setUserName("doctor3");
     this->db.setPassword("1234567");
     this->openOK = db.open();
-    qDebug()<<"Monitor Server 连接数据库成功";
+    if ( this->openOK )
+        qDebug()<<"Woking Station Server 连接数据库成功";
     return this->openOK;
 }
 
-void MonitorServer::tcpNewConnection()
+void WorkingStationServer::tcpNewConnection()
 {
     this->mSocket = mTcpServer->nextPendingConnection();
     if (this->mSocket)
     {
-        MonitorTcpSocket *mySocket = new MonitorTcpSocket(this->openOK, this->db);
+        WorkingStationSocket *mySocket = new WorkingStationSocket(this->openOK, this->db);
         mySocket->setSocketDescriptor(this->mSocket->socketDescriptor());
 
         // 新建一个线程
@@ -41,12 +42,12 @@ void MonitorServer::tcpNewConnection()
         mySocket->moveToThread(t);
         t->start();
 
-        connect(mySocket, &QTcpSocket::disconnected, this, &MonitorServer::tcpDisconnect);
+        connect(mySocket, &QTcpSocket::disconnected, this, &WorkingStationServer::tcpDisconnect);
         qDebug()<<"TCP 连接成功";
     }
 }
 
-void MonitorServer::tcpDisconnect()
+void WorkingStationServer::tcpDisconnect()
 {
     this->mSocket->deleteLater();
     mSocket = 0;

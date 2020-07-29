@@ -10,12 +10,12 @@ MyTcpClient::MyTcpClient(quint16 port, QWidget *parent) : QWidget(parent)
     this->reConnectTimer->start(500);       // 2000ms连接一次
 //    this->reConnectTimer->setInterval();
     connect(this->reConnectTimer, &QTimer::timeout, this, &MyTcpClient::reConnect);
-//    connect(this->mySocket, &QTcpSocket::readyRead, this, &MyTcpClient::tcpReadyRead);
+    connect(this->mySocket, &QTcpSocket::readyRead, this, &MyTcpClient::tcpReadyRead);
     connect(this->mySocket, &QTcpSocket::connected, this->reConnectTimer, &QTimer::stop);
 
     // 处理 Server 先断开连接 尝试重新连接
     connect(this->mySocket, &QTcpSocket::disconnected, this, &MyTcpClient::initTimer);
-//    connect(this->mySocket, &QTcpSocket::connected, this, &MyTcpClient::tcpConnect);
+    connect(this->mySocket, &QTcpSocket::connected, this, &MyTcpClient::tcpConnect);
     // 一个信号可以连接两个槽吧
 }
 
@@ -28,8 +28,9 @@ MyTcpClient::~MyTcpClient()
 // 在这里接收数据 或许可以做一个返回值的操作
 void MyTcpClient::tcpReadyRead()
 {
-    QString re = this->mySocket->readAll();
+    QByteArray re = this->mySocket->readAll();
     qDebug()<<"Client received: "<<re;
+    qDebug()<<"received size: "<<re.size();
 //    this->mySocket->readAll().
 }
 
@@ -43,7 +44,6 @@ void MyTcpClient::reConnect()
 // 用来向主机发送数据
 void MyTcpClient::sendData()
 {
-    this->mySocket->write("hello");
 }
 
 void MyTcpClient::tcpConnect()
