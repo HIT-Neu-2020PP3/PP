@@ -1,3 +1,7 @@
+#include "logindlg.h"
+#include "databasedata.h"
+#include "ui_logindlg.h"
+#include <QMessageBox>
 #include <QApplication>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
@@ -7,96 +11,38 @@
 #include <QSqlError>
 #include <QDateTime>
 
-class PatientModel: public QSqlQueryModel
+
+
+
+
+LoginDlg::LoginDlg(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::LoginDlg)
 {
-public:
-    PatientModel()
-    {
-        this->setQuery("SELECT *FROM patients");
-    }
+    ui->setupUi(this);
+}
 
-    Qt::ItemFlags flags(const QModelIndex &index) const override
-    {
-//        qDebug()<<"i am here"<<index.row()<<index.column();
-        Qt::ItemFlags flags = QSqlQueryModel::flags(index);
-        if (index.column() == 1 || index.column() == 2)
-            flags |= Qt::ItemIsEditable;
-        return flags;
-    }
-
-    bool setName(int id, const QString &name)
-    {
-        QSqlQuery query;
-
-         query.prepare("UPDATE patients SET name = ? WHERE  id = ?");
-         query.addBindValue(name);
-         query.addBindValue(id);
-         return query.exec();
-    }
-
-    bool setGender(int id, const QString &gender)
-    {
-        QSqlQuery query;
-
-        query.prepare("UPDATE patients SET gender = ? WHERE  id = ?");
-        query.addBindValue(gender);
-        query.addBindValue(id);
-        return query.exec();
-    }
-
-    bool setData(const QModelIndex &index, const QVariant &value, int) override
-    {
-        if (index.column() < 1 || index.column() > 2)
-            return false;
-        // 获取当前列 当前行 用 sql 更新数据
-        //
-        QModelIndex primaryKeyIndex = QSqlQueryModel::index(index.row(), 0);
-        // 得到第 0 列的内容
-        int id = this->data(primaryKeyIndex).toInt();
-
-        bool ok = false;
-        if (index.column() == 1)
-        {
-            //todo 更新姓名
-            qDebug()<<"更新姓名"<<value.toString();
-            ok = this->setName(id, value.toString());
-        } else if (index.column() == 2)
-        {
-            //todo 更新性别
-            qDebug()<<"更新性别";
-            ok = this->setGender(id, value.toString());
-        } else
-        {
-            qDebug()<<"error";
-        }
-
-        if (ok) this->setQuery("SELECT * FROM patients");
-    }
-};
-
-
-int main(int argc, char *argv[])
+LoginDlg::~LoginDlg()
 {
-    QApplication a(argc, argv);
+    delete ui;
+}
 
-    // 加载驱动
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    // 服务器地址 本地 远程 IP 或者 域名
-    db.setHostName("localhost");
-    // 数据库名
-    db.setDatabaseName("medical_monitor1");
-    // 用户名及密码
-    db.setUserName("doctor3");
-    db.setPassword("1234567");
-    bool openOK = db.open();
+void LoginDlg::on_LoginPButton_clicked()
+{
+    //连接数据库
+    DatabaseData database;
 
-    if (openOK)
-        qDebug()<<"OK";
-    else
-        qDebug()<<"BAD";
 
-    if (openOK)
+
+    //判断用户名和密码是否正确
+    //如果错误则弹出警告对话框
+    //读取数据库的用户名和密码
+    if(database.VerificationLogin(ui->UserNameEdit->text().trimmed(), ui->PasswordEdit->text().trimmed()))//trimmed表示修剪的，去掉编辑框前面的空格ui->UserNameEdit->text().trimmed() == "admin" && ui->PasswordEdit->text() == "nengxing"
     {
+        //登录成功，则触发accept函数
+        accept();
+        QMessageBox::warning(this,tr("警告！"),tr("登录成功！"),QMessageBox::Yes);
+// /////////
         // 查询 db参数指定连接
         QSqlQuery query(db);
 
@@ -152,9 +98,9 @@ int main(int argc, char *argv[])
  */
         query.prepare("SELECT * from device "
                       "WHERE serial = :serial");
-        query.bindValue(":serial", "DEV-001");
+        query.bindValue(":serial", "DEV-007");
 
-        int dev_id = 5;
+        int dev_id = 1;
         if(query.exec())
         {
             qDebug()<<"size"<<query.size();
@@ -186,7 +132,7 @@ int main(int argc, char *argv[])
 
         // 模拟终端设备，上传数据波形
         // 方法2 bindValue
-        query.prepare("INSERT INTO ecg (value, time, dev_id) VALUES (:array, :time, :dev_id)");
+        query.prepare("INSERT INTO sample (value, time, dev_id) VALUES (:array, :time, :dev_id)");
         // 与数据库中数据类型一致的十六进制数组
         short samples[3] = {2000,2001,2002};
         QByteArray waves2((char*)samples, sizeof(samples));
@@ -207,49 +153,22 @@ int main(int argc, char *argv[])
         queryOk = query.exec();
         if(!queryOk)
             qDebug()<<"更新设备在线状态错误";
+
+
+
+
+
+
+
+
+
     }
-
-/*
-* 下面代码运行在工作站
-*/
-    // 显示设备列表
-    // 创建表格对象
-    QWidget *mainWin  = new QWidget();
-    // 显示设备列表
-    // 创建表格对象
-    QTableView *view = new QTableView();
-
-    // 创建模型对象
-    QSqlQueryModel model;
-    model.setQuery("SELECT dev_id, serial, now()-refresh < 20 AS online FROM device");
-
-    view->setModel(&model);
-    view->show();
-
-    // 显示病人列表
-    // 创建表格对象
-    QTableView *patientView = new QTableView();
-
-    // 创建模型对象
-    PatientModel patientModel;
-//    patientModel.setQuery("SELECT * FROM patients");
-
-    patientView->setModel(&patientModel);
-    patientView->show();
-
-    QTableView *devicePatientView = new QTableView();
-
-    // 创建模型对象
-    QSqlQueryModel devicePatientModel;
-    devicePatientModel.setQuery("SELECT * FROM patients "
-                   "LEFT JOIN device_patient "
-                   "ON patients.id = device_patient.id "
-                   "LEFT JOIN device "
-                   "ON device.dev_id = device_patient.dev_id");
-
-    devicePatientView->setModel(&devicePatientModel);
-    devicePatientView->show();
-
-
-    return a.exec();
+    else
+    {
+        //登录失败，清空用户编辑框，密码编辑框，设置光标到用户编辑框
+        QMessageBox::warning(this,tr("警告！"),tr("用户名或者密码错误！"),QMessageBox::Yes);
+        ui->UserNameEdit->clear();//清空用户编辑框
+        ui->PasswordEdit->clear();
+        ui->UserNameEdit->setFocus();//设置光标到用户编辑框
+    }
 }
