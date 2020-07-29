@@ -4,6 +4,7 @@
 #include <QWidget>
 #include<QDebug>
 #include <QTableView>
+#include <QString>
 
 namespace Ui {
 class Widget;
@@ -31,11 +32,15 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::Widget *ui;
     QTableView *view;
     QTableView *patientView;
     QTableView *devicePatientView ;
+    void drawwave();
+
 };
 
 #endif // WIDGET_H

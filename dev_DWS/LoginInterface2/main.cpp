@@ -13,6 +13,9 @@
 #include <QDateTime>
 #include "databasedata.h"
 #include <QPushButton>
+#include <QLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <QObject>
 
@@ -31,10 +34,14 @@ int main(int argc, char *argv[])
         */
         //如果被按下，显示窗口
             Widget w;
+            w.setWindowTitle("起个啥名呢");
+
             w.show();
+
             // 显示设备列表
             // 创建表格对象
             QWidget *mainWin  = new QWidget();
+
             // 显示设备列表
             // 创建表格对象
             QTableView *view = new QTableView();
