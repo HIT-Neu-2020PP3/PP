@@ -8,9 +8,9 @@ InterfaceDisplay::InterfaceDisplay(QWidget *parent) : QWidget(parent)
 InterfaceDisplay::InterfaceDisplay(int maxE, int maxS, int maxI, QWidget *parent):
     QWidget(parent), maxEcg(maxE), maxSPO2(maxS), maxIBP2(maxI)
 {
-    this->ecgDrawer = new QWidgetDrawForSerialRx(this->maxEcg);
-    this->ibp2Drawer = new QWidgetDrawForSerialRx(this->maxIBP2);
-    this->spo2Drawer = new QWidgetDrawForSerialRx(this->maxSPO2);
+    this->ecgDrawer = new QWidgetDrawForSerialRx(this->maxEcg, Qt::green);
+    this->ibp2Drawer = new QWidgetDrawForSerialRx(this->maxIBP2, Qt::red);
+    this->spo2Drawer = new QWidgetDrawForSerialRx(this->maxSPO2, Qt::darkYellow);
 
     this->initMainLayout();
     this->setStyleSheet("background: rgb(0, 0, 0)");
