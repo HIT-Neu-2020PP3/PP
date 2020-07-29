@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -25,15 +25,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    interfacedisplay.cpp \
         main.cpp \
+    mytcpclient.cpp \
+    qwidgetdraw.cpp \
+    qwidgetdrawforserialrx.cpp \
         widget.cpp \
     logindlg.cpp \
-    databasedata.cpp
+    databasedata.cpp \
+    workingstationclient.cpp
 
 HEADERS += \
+    interfacedisplay.h \
+    mytcpclient.h \
+    qwidgetdraw.h \
+    qwidgetdrawforserialrx.h \
         widget.h \
     logindlg.h \
-    databasedata.h
+    databasedata.h \
+    workingstationclient.h
 
 FORMS += \
         widget.ui \

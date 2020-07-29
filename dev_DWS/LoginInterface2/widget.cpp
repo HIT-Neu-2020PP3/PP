@@ -8,11 +8,42 @@
 #include <QMessageBox>
 #include <QPainter>
 
-Widget::Widget(QWidget *parent) :
+Widget::Widget(quint16 port, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+
+    int i = 0;
+    for (; i < 10; i++) {
+        this->ecgBuffer.append(100);
+        this->ibp2Buffer.append(100);
+        this->spo2Buffer.append(100);
+    }
+
+
+    this->displayer = new InterfaceDisplay(4096, 100, 80);
+    this->wsClient = new WorkingStationClient(port);
+
+    this->refreshEcgTimer = new QTimer();
+    this->refreshIbp2Timer = new QTimer();
+    this->refreshSPO2Timer = new QTimer();
+
+    connect(this->wsClient, &WorkingStationClient::processRxDataSignal, this, &Widget::processData);
+    connect(this, &Widget::queryForData, this->wsClient, &WorkingStationClient::queryRequest);
+
+
+    connect(this, &Widget::rxEcgDataSignal, this->displayer->ecgDrawer, &QWidgetDrawForSerialRx::refreshFromData);
+    connect(this, &Widget::rxSpo2DataSignal, this->displayer->spo2Drawer, &QWidgetDrawForSerialRx::refreshFromData);
+    connect(this, &Widget::rxIbp2DataSignal, this->displayer->ibp2Drawer, &QWidgetDrawForSerialRx::refreshFromData);
+
+    connect(this->refreshEcgTimer, &QTimer::timeout, this, &Widget::getEcgData);
+    connect(this->refreshIbp2Timer, &QTimer::timeout, this, &Widget::getIBP2Data);
+    connect(this->refreshSPO2Timer, &QTimer::timeout, this, &Widget::getSPO2Data);
+
+    connect(this->displayer, &InterfaceDisplay::closeWindow, this->refreshEcgTimer, &QTimer::stop);
+    connect(this->displayer, &InterfaceDisplay::closeWindow, this->refreshIbp2Timer, &QTimer::stop);
+    connect(this->displayer, &InterfaceDisplay::closeWindow, this->refreshSPO2Timer, &QTimer::stop);
 
 }
 
@@ -49,43 +80,35 @@ void Widget::on_pushButton_clicked()
 
 void Widget::on_pushButton_4_clicked()
 {
-    QString lookfor_id=ui->lineEdit->text();
-    qDebug()<<"查询对应的病人ID"<<lookfor_id;
-    QSqlQuery query(db);
+    // 读取待查询的病人编号
+    int patient_ID = ui->lineEdit->text().trimmed().toInt();
+    qDebug()<<"patient_ID: "<<patient_ID;
+    this->patient_id = patient_ID;
+
+    this->refreshEcgTimer->start(2);
+    this->refreshIbp2Timer->start(8);
+    this->refreshSPO2Timer->start(4);
 
 
-    query.prepare("SELECT dev_id from medical_monitor1.device_patient where id= :id") ;
-    query.bindValue(":id",lookfor_id.toInt());
-    query.exec();   //查询病人所对应的设备号
-    qDebug()<<query.lastError();
-    query.first();
-    QString lookfor_device_id=query.value("dev_id").toString();
-    qDebug()<<"查询对应的设备号"<<lookfor_device_id;
+    qDebug()<<"启动所有信号连接";
+    this->displayer->show();
+    ui->lineEdit->clear();
+}
 
-    query.prepare("SELECT value from sample where dev_id= :id2") ;
-    query.bindValue(":id2",lookfor_device_id);
-    query.exec();   //查询对应设备的采样值
-    bool queryOk;
-    queryOk = query.exec();
-    if(queryOk&&query.size()>0)
-    {
-        qDebug()<<query.size();
-        while(query.next())
-        {
-            QByteArray waveData = query.value("value").toByteArray();
-            // todo, 画波形
-            qDebug()<<query.size()<<waveData;
-
-            qDebug()<<"得到波形数据";
-        }
-          drawwave();
-    }else
-    {
-        qDebug()<<"读取错误"<<query.lastError();
-        QMessageBox::warning(this,tr("提示！"),tr("未查到此病人相关数据"),QMessageBox::Yes);
-        ui->lineEdit->clear();
+void Widget::processData(char pID, const QByteArray &ba)
+{
+    if ( pID == 0x00 ) {
+        qDebug()<<"接收信息错误";
+         QMessageBox::warning(this,tr("提示！"),tr("未查到此病人相关数据"),QMessageBox::Yes);
+        return;
+    } else if ( pID == 0x08 ) {
+        this->ecgBuffer_A = ba;
+    } else if ( pID == 0x09 ) {
+        this->spo2Buffer_A = ba;
+    } else if ( pID == 0x0a ) {
+        this->ibp2Buffer_A = ba;
     }
-
+    qDebug()<<"信息已经更新";
 }
 void Widget::drawwave()//预计绘制心电波形（未完成）
 {
@@ -193,9 +216,53 @@ void Widget::drawwave()//预计绘制心电波形（未完成）
         index=0;
     if(x>=width)
         x=0;
-        dr->show();
-
-
-
+        dr->show();    
 }
 
+void Widget::getEcgData()
+{
+    if ( this->ecgBuffer_A.isEmpty() ) {
+        emit queryForData(this->patient_id, 0x08);
+        return;
+    }
+    qDebug()<<"get ECG data";
+    unsigned char high = this->ecgBuffer_A.at(0);
+    unsigned char low = this->ecgBuffer_A.at(1);
+    this->ecgBuffer_A.remove(0, 2); //移除
+    int data = high;
+    data = data << 8;
+    data += low;
+    this->ecgBuffer.enqueue(data);
+    data = this->ecgBuffer.dequeue();
+    emit rxEcgDataSignal(0x08, data);
+}
+
+void Widget::getIBP2Data()
+{
+    if ( this->ibp2Buffer_A.isEmpty() ) {
+        emit queryForData(this->patient_id, 0x0a);
+        return;
+    }
+    qDebug()<<"get IBP2 data";
+    unsigned high = this->ibp2Buffer_A.at(0);
+    int data = high;
+    this->ibp2Buffer_A.remove(0, 1);    // 移除这个数据
+    this->ibp2Buffer.enqueue(data);
+    data = this->ibp2Buffer.dequeue();
+    emit rxIbp2DataSignal(0x0a, data);
+}
+
+void Widget::getSPO2Data()
+{
+    if ( this->spo2Buffer_A.isEmpty() ) {
+        emit queryForData(this->patient_id, 0x09);
+        return;
+    }
+    qDebug()<<"get SPO2 data";
+    unsigned high = this->spo2Buffer_A.at(0);
+    int data = high;
+    this->spo2Buffer_A.remove(0, 1);
+    this->spo2Buffer.enqueue(data);
+    data = this->spo2Buffer.dequeue();
+    emit rxSpo2DataSignal(0x09, data);
+}

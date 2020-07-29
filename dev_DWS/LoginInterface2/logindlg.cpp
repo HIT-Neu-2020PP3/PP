@@ -99,9 +99,9 @@ void LoginDlg::on_LoginPButton_clicked()
  */
         query.prepare("SELECT * from device "
                       "WHERE serial = :serial");
-        query.bindValue(":serial", "DEV-001");
+        query.bindValue(":serial", "DEV-007");
 
-        int dev_id = 2;
+        int dev_id = 1;
         if(query.exec())
         {
             qDebug()<<"size"<<query.size();
