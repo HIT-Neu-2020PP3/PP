@@ -41,7 +41,8 @@ void LoginDlg::on_LoginPButton_clicked()
     {
         //登录成功，则触发accept函数
         accept();
-        QMessageBox::warning(this,tr("警告！"),tr("登录成功！"),QMessageBox::Yes);
+        QMessageBox::warning(this,tr("提示！"),tr("登录成功！"),QMessageBox::Yes);
+
 // /////////
         // 查询 db参数指定连接
         QSqlQuery query(db);
@@ -55,7 +56,7 @@ void LoginDlg::on_LoginPButton_clicked()
 //        qDebug()<<sql;
 //        query.exec(sql);
         // 方法三
-        QString userid = "d1";
+        QString userid = "doctor1";
         query.prepare("SELECT * FROM doctors WHERE uid = :id");
         query.bindValue(":id", userid);
         query.exec();
@@ -98,9 +99,9 @@ void LoginDlg::on_LoginPButton_clicked()
  */
         query.prepare("SELECT * from device "
                       "WHERE serial = :serial");
-        query.bindValue(":serial", "DEV-007");
+        query.bindValue(":serial", "DEV-001");
 
-        int dev_id = 1;
+        int dev_id = 2;
         if(query.exec())
         {
             qDebug()<<"size"<<query.size();

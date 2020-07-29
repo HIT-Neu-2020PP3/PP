@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
  */
         query.prepare("SELECT * from device "
                       "WHERE serial = :serial");
-        query.bindValue(":serial", "DEV-007");
+        query.bindValue(":serial", "DEV-001");
 
-        int dev_id = 1;
+        int dev_id = 5;
         if(query.exec())
         {
             qDebug()<<"size"<<query.size();
