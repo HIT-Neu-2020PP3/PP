@@ -17,8 +17,8 @@ MonitorTcpSocket::~MonitorTcpSocket()
 
 int MonitorTcpSocket::getDevID(const QByteArray &ba)
 {
-    char low = ba.at(0);
-    char high = ba.at(1);
+    unsigned char low = ba.at(0);
+    unsigned char high = ba.at(1);
     int dev_id = high;
     dev_id = dev_id << 8;
     dev_id = dev_id + low;

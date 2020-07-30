@@ -53,6 +53,6 @@ void WorkingStationClient::queryRequest(int patient_ID, char pID)
     sendBa.append(high);
     sendBa.append(low);
     sendBa.append(pID);
-    this->mySocket->write(sendBa);
+    this->mySocket->write(sendBa); // 虽然这边是立即发送 但是那边不是立即接收啊
     this->mySocket->flush();
 }

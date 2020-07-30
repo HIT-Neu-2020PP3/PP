@@ -1,8 +1,8 @@
 #include "qwidgetdrawforserialrx.h"
 
 QWidgetDrawForSerialRx::
-QWidgetDrawForSerialRx(int maxD, QWidget *parent)
-    : QWidgetDraw(parent), maxData(maxD)
+QWidgetDrawForSerialRx(int maxD, const QColor &color, QWidget *parent)
+    : QWidgetDraw(parent), waveColor(color), maxData(maxD)
 {
 
 }
@@ -17,7 +17,7 @@ refreshFromData(char pID, int data)
     painter->begin(&this->map);
     QPen *pen = new QPen();
     pen->setWidth(2);
-    pen->setColor(Qt::green);
+    pen->setColor(this->waveColor);
     painter->setPen(*pen);
 
 

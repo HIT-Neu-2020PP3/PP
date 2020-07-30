@@ -8,9 +8,9 @@ InterfaceDisplay::InterfaceDisplay(QWidget *parent) : QWidget(parent)
 InterfaceDisplay::InterfaceDisplay(int maxE, int maxS, int maxI, QWidget *parent):
     QWidget(parent), maxEcg(maxE), maxSPO2(maxS), maxIBP2(maxI)
 {
-    this->ecgDrawer = new QWidgetDrawForSerialRx(this->maxEcg);
-    this->ibp2Drawer = new QWidgetDrawForSerialRx(this->maxIBP2);
-    this->spo2Drawer = new QWidgetDrawForSerialRx(this->maxSPO2);
+    this->ecgDrawer = new QWidgetDrawForSerialRx(this->maxEcg, Qt::green);
+    this->ibp2Drawer = new QWidgetDrawForSerialRx(this->maxIBP2, Qt::darkYellow);
+    this->spo2Drawer = new QWidgetDrawForSerialRx(this->maxSPO2, Qt::red);
 
     this->initLayout();
 
@@ -39,5 +39,9 @@ void InterfaceDisplay::initLayout()
 
 void InterfaceDisplay::closeEvent(QCloseEvent *event)
 {
+    // 这边可以顺便把子图清空吗
+    this->ecgDrawer->closeEvent(event);
+    this->ibp2Drawer->closeEvent(event);
+    this->spo2Drawer->closeEvent(event);
     emit closeWindow();
 }

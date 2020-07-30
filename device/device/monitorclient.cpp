@@ -1,8 +1,9 @@
 #include "monitorclient.h"
 
-MonitorClient::MonitorClient(quint16 port, QWidget *parent)
+MonitorClient::MonitorClient(quint16 port, short dev_id, QWidget *parent)
     : MyTcpClient(port, parent)
 {
+    this->dev_id[0] = dev_id;
     connect(this->mySocket, &QTcpSocket::connected, this, &MonitorClient::tcpConnected);
     connect(this->mySocket, &QTcpSocket::readyRead, this, &MonitorClient::tcpRead);
 

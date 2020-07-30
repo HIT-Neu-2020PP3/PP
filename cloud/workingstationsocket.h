@@ -15,7 +15,7 @@ class WorkingStationSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit WorkingStationSocket(bool isOK, QSqlDatabase &db, QTcpSocket *parent = nullptr);
+    explicit WorkingStationSocket(bool openOK, QSqlDatabase &db, QTcpSocket *parent = nullptr);
     ~WorkingStationSocket();
 
 

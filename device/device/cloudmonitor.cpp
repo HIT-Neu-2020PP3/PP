@@ -19,9 +19,9 @@ void CloudMonitor::initSerials(const QString &ecgPort, const QString &ibp2Port, 
     this->spo2Rx = new QWidgetSerialRx(spo2Port);
 }
 // 初始化TCP客户端
-void CloudMonitor::initClient(qint16 port)
+void CloudMonitor::initClient(qint16 port, short dev_id)
 {
-    this->mClient = new MonitorClient(port);
+    this->mClient = new MonitorClient(port, dev_id);
 }
 // 初始化界面显示
 void CloudMonitor::initDisplayer(int maxEcg, int maxIBP2, int maxSPO2)

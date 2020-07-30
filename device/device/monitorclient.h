@@ -8,7 +8,7 @@ class MonitorClient : public MyTcpClient
 {
     Q_OBJECT
 public:
-    explicit MonitorClient(quint16 port, QWidget *parent = nullptr);
+    explicit MonitorClient(quint16 port, short dev_id, QWidget *parent = nullptr);
 
     // 判断是否满
     bool isEcgBufferFull();

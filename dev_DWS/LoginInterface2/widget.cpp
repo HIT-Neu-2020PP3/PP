@@ -14,14 +14,6 @@ Widget::Widget(quint16 port, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    int i = 0;
-    for (; i < 10; i++) {
-        this->ecgBuffer.append(100);
-        this->ibp2Buffer.append(100);
-        this->spo2Buffer.append(100);
-    }
-
-
     this->displayer = new InterfaceDisplay(4096, 100, 80);
     this->wsClient = new WorkingStationClient(port);
 
@@ -81,6 +73,7 @@ void Widget::on_pushButton_clicked()
 void Widget::on_pushButton_4_clicked()
 {
     // 读取待查询的病人编号
+    this->displayer->closeEvent(new QCloseEvent());
     int patient_ID = ui->lineEdit->text().trimmed().toInt();
     qDebug()<<"patient_ID: "<<patient_ID;
     this->patient_id = patient_ID;

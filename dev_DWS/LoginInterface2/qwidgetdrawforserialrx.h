@@ -8,9 +8,10 @@ class QWidgetDrawForSerialRx : public QWidgetDraw
     Q_OBJECT
 public:
 
-    QWidgetDrawForSerialRx(int maxDa, QWidget *parent = nullptr);
+    QWidgetDrawForSerialRx(int maxDa,  const QColor &color = Qt::green, QWidget *parent = nullptr);
 
     int maxData;
+    QColor waveColor;
     void refreshFromData(char pID, int data);
 };
 

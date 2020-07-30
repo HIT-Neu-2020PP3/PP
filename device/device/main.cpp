@@ -28,12 +28,24 @@ int main(int argc, char *argv[])
     int maxSPO2 = 100;
 
     CloudMonitor *monitor = new CloudMonitor();
-    monitor->initClient(1234);  // 监听端口 1234
+    monitor->initClient(1234, 2);  // 监听端口 1234
     monitor->initSerials("COM2", "COM4", "COM6");
     monitor->initDisplayer(maxEcg, maxIBP2, maxSPO2);
     monitor->initSignalConnection();
 
     monitor->showInterface();
+
+//    QWidgetSerialTxEcg *serialTxEcg_A = new QWidgetSerialTxEcg(2, "COM7", Ecg2_500DemoData, 500);
+//    QWidgetSerialTxIBP2 *serialTxIBP2_A = new QWidgetSerialTxIBP2(8, "COM9", Ibp2_DemoData, 125);
+//    QWidgetSerialTxSPO2 *serialSPO2_A = new QWidgetSerialTxSPO2(4, "COM11", Spo2_DemoData, 248);
+
+//    CloudMonitor *monitor2 = new CloudMonitor();
+//    monitor2->initClient(1234, 1);  // 监听端口 1234
+//    monitor2->initSerials("COM8", "COM10", "COM12");
+//    monitor2->initDisplayer(maxEcg, maxIBP2, maxSPO2);
+//    monitor2->initSignalConnection();
+
+//    monitor2->showInterface();
 
 
     return a.exec();

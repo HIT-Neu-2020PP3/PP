@@ -36,7 +36,7 @@ public:
     void refreshFromData(int data);
     void sendData();
     void setLabelText(const QString &s);
-private:
+//private:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void closeEvent(QCloseEvent *event) override;

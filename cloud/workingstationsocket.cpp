@@ -1,6 +1,6 @@
 #include "workingstationsocket.h"
 
-WorkingStationSocket::WorkingStationSocket(bool isOK, QSqlDatabase &db, QTcpSocket *parent)
+WorkingStationSocket::WorkingStationSocket(bool openOK, QSqlDatabase &db, QTcpSocket *parent)
     : QTcpSocket(parent), openOK(openOK)
 {
     if ( this->openOK )
@@ -77,10 +77,10 @@ int WorkingStationSocket::queryDevIDFromPatientID(int patient_ID)
 {
     int q_dev_id = 0;
     if ( this->openOK ) {
-        this->query->prepare("SELECT dev_id from medical_monitor1.device_patient where patient_id= :id");
+        this->query->prepare("SELECT dev_id from medical_monitor1.device_patient where patient_id = :id");
         this->query->bindValue(":id", patient_ID);
         if ( !this->query->exec() )
-            qDebug()<<"获取设备 ID 失败 查询不到对应用户的设备";
+            qDebug()<<"获取设备 ID 失败 查询不到对应用户的设备"<<query->lastError();
         else {
             this->query->next();
             q_dev_id = this->query->value("dev_id").toInt();

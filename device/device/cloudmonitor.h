@@ -17,7 +17,7 @@ public:
     // 初始化这个类中的所有对象
     void initMonitor();
     void initSerials(const QString &ecgPort, const QString &ibp2Port, const QString &spo2Port);             // 初始化串口
-    void initClient(qint16 port);   // 初始化 TCP 客户端
+    void initClient(qint16 port, short dev_id);   // 初始化 TCP 客户端
     // 初始化 界面展示部分
     void initDisplayer(int maxEcg, int maxIBP2, int maxSPO2);
     void initSignalConnection();
